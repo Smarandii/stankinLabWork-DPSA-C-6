@@ -89,13 +89,14 @@ int print_file(const char* file_name, int series_length) {
 
 
 
-void _2phase_sort(int length_1_file) {
+void _2phase_sort() {
 	FILE* f, * g, * t;
 	char g_file[100], t_file[100], c = '1';
 	int series_length = 1, series_length_1_file, series_length_2_file;
 	int x2, x3;
-	int length_2_file = 0, length_3_file = 0;
+	int length_2_file = 0, length_3_file = 0, length_1_file = 2;
 	int remaining_length, remaining_length_2;
+	int flag_2 = 1, flag_3 = 1;
 	while (series_length < length_1_file) {
 		
 		f = fopen("1.txt", "r");
@@ -106,35 +107,30 @@ void _2phase_sort(int length_1_file) {
 		check_file(t);
 
 		// фаза разделения
-		remaining_length = length_1_file;
-		while (remaining_length > 0) {
+		while (flag_2 != -1 && flag_3 != -1) {
 			series_length_1_file = series_length;
 			series_length_2_file = series_length;
-			if (remaining_length > 0) {
-				while (series_length_1_file > 0 && remaining_length > 0) {
-					fscanf(f, "%s", g_file);
-					fprintf(g, "%s", g_file);
-					fprintf(g, " ");
-					remaining_length--;
-					series_length_1_file--;
-				}
+			while (series_length_1_file > 0 && flag_2 != -1) {
+				flag_2 = fscanf(f, "%s", g_file);
+				fprintf(g, "%s ", g_file);
+				series_length_1_file--;
+				length_2_file++;
 			}
-			if (remaining_length > 0) {
-				while (series_length_2_file > 0 && remaining_length > 0) {
-					fscanf(f, "%s", t_file);
-					fprintf(t, "%s", t_file);
-					fprintf(t, " ");
-					remaining_length--;
-					series_length_2_file--;
-				}
+			while (series_length_2_file > 0 && flag_3 != -1) {
+				flag_3 = fscanf(f, "%s", t_file);
+				if (flag_3 == -1) break;
+				fprintf(t, "%s ", t_file);
+				series_length_2_file--;
+				length_3_file++;
 			}
 		}
 		fclose(g);
 		fclose(t);
 		fclose(f);
 
-		length_2_file = print_file("2.txt", series_length);
-		length_3_file = print_file("3.txt", series_length);
+		length_1_file = (length_2_file + length_3_file);
+		print_file("2.txt", series_length);
+		print_file("3.txt", series_length);
 		f = fopen("1.txt", "w");
 		check_file(f);
 		g = fopen("2.txt", "r");
@@ -212,6 +208,8 @@ void _2phase_sort(int length_1_file) {
 		fclose(f);
 		fclose(g);
 		fclose(t);
+		flag_2 = 1;
+		flag_3 = 1;
 	}
 }
 
@@ -225,6 +223,6 @@ void main() {
 	make_file_copy("f.txt");
 	f_length = print_file("f.txt");
 
-	_2phase_sort(f_length);
+	_2phase_sort();
 
 }

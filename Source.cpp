@@ -93,7 +93,6 @@ void _2phase_sort() {
 	int series_length = 1, series_length_1_file, series_length_2_file;
 	int x2, x3;
 	int length_2_file = 0, length_3_file = 0, length_1_file = 2;
-	int remaining_length, remaining_length_2;
 	int flag_2 = 1, flag_3 = 1;
 	while (series_length < length_1_file) {
 
@@ -110,6 +109,7 @@ void _2phase_sort() {
 			series_length_2_file = series_length;
 			while (series_length_1_file > 0 && flag_2 != -1) {
 				flag_2 = fscanf(f, "%s", g_file);
+				if (flag_2 == -1) break;
 				fprintf(g, "%s ", g_file);
 				series_length_1_file--;
 				length_2_file++;
@@ -137,75 +137,60 @@ void _2phase_sort() {
 		check_file_errors(t);
 
 
-		remaining_length = length_1_file;
-		fscanf(g, "%s", g_file);
-		fscanf(t, "%s", t_file);
+		flag_2 = fscanf(g, "%s", g_file);
+		flag_3 = fscanf(t, "%s", t_file);
 		x2 = atoi(g_file);
 		x3 = atoi(t_file);
 
 
 		printf("\nf: ");
-		while (remaining_length > 0) {
+		while (flag_2 != -1 || flag_3 != -1) {
 			series_length_1_file = series_length;
 			series_length_2_file = series_length;
-			while (series_length_1_file > 0 && series_length_2_file > 0 && remaining_length > 0 && length_2_file > 0 && length_3_file > 0) {
+			while (series_length_1_file > 0 && series_length_2_file > 0 && flag_2 != -1 && flag_3 != -1) {
 				if (x2 >= x3) {
-					fprintf(f, "%s", t_file);
-					fprintf(f, " ");
+					fprintf(f, "%s ", t_file);
 					printf("%s ", t_file);
-					fscanf(t, "%s", t_file);
+					flag_3 = fscanf(t, "%s", t_file);
 					x3 = atoi(t_file);
-					remaining_length--;
 					series_length_2_file--;
-					length_3_file--;
 				}
 				else {
-					fprintf(f, "%s", g_file);
-					fprintf(f, " ");
+					fprintf(f, "%s ", g_file);
 					printf("%s ", g_file);
-					fscanf(g, "%s", g_file);
+					flag_2 = fscanf(g, "%s", g_file);
 					x2 = atoi(g_file);
-					remaining_length--;
 					series_length_1_file--;
-					length_2_file--;
 				}
 			}
-			if (series_length_1_file != 0 && length_2_file != 0)
-				while (series_length_1_file > 0 && remaining_length > 0) {
-					fprintf(f, "%s", g_file);
-					fprintf(f, " ");
-					printf("%s ", g_file);
-					fscanf(g, "%s", g_file);
-					x2 = atoi(g_file);
-					remaining_length--;
-					series_length_1_file--;
-					if ((series_length_2_file == 0 && series_length_1_file == 0) || remaining_length == 0)
-						printf("|");
-					length_2_file--;
-				}
-			else
-				if (series_length_2_file != 0 && remaining_length > 0 && length_3_file != 0)
-					while (series_length_2_file > 0 && remaining_length > 0) {
-						fprintf(f, "%s", t_file);
-						fprintf(f, " ");
-						printf("%s ", t_file);
-						fscanf(t, "%s", t_file);
-						x3 = atoi(t_file);
-						remaining_length--;
-						series_length_2_file--;
-						if ((series_length_2_file == 0 && series_length_1_file == 0) || remaining_length == 0)
-							printf("|");
-						length_3_file--;
-					}
-		}
 
-		length_2_file = 0;
-		length_3_file = 0;
+			while (series_length_1_file > 0 && flag_2 != -1) {
+				fprintf(f, "%s ", g_file);
+				printf("%s ", g_file);
+				flag_2 = fscanf(g, "%s", g_file);
+				x2 = atoi(g_file);
+				series_length_1_file--;
+				if ((series_length_2_file == 0 && series_length_1_file == 0))
+					printf("|");
+			}
+			while (series_length_2_file > 0 && flag_2 != -1 && flag_3 != -1) {
+				fprintf(f, "%s ", t_file);
+				printf("%s ", t_file);
+				flag_3 = fscanf(t, "%s", t_file);
+				x3 = atoi(t_file);
+				series_length_2_file--;
+				if ((series_length_2_file == 0 && series_length_1_file == 0))
+					printf("|");
+			}
+		}
 		printf("\n");
-		series_length *= 2;
 		fclose(f);
 		fclose(g);
 		fclose(t);
+
+		length_2_file = 0;
+		length_3_file = 0;
+		series_length *= 2;
 		flag_2 = 1;
 		flag_3 = 1;
 	}
